@@ -3,9 +3,8 @@ import tempfile
 
 import streamlit as st
 
-from speech_to_text import describe
+from textfiles import describe
 from ai_feedback import get_recommendations
-
 
 def save_temp_audio(audio):
     """Save recorded/uploaded audio to a temporary file and return its path."""
