@@ -1,28 +1,39 @@
-
+#Ashrith
 import os
 from dotenv import load_dotenv
 from google import genai
+from speech_to_text import transcribe_audio
 
-print("Step 1: Python is running")
-
-load_dotenv("trial.env")
-print("Step 2: Environment file loaded")
+# Load Gemini API key
+load_dotenv("../trial.env")
 
 api_key = os.getenv("GEMINI_API_KEY")
-print("Step 3: API key found:", bool(api_key))
 
 if not api_key:
     raise ValueError("API key not found!")
 
 client = genai.Client(api_key=api_key)
-print("Step 4: Gemini client initialized")
 
-print("Step 5: Sending request...")
+# Path to your WAV audio file
+audio_path = "sample.wav"
 
+# Convert speech to text using Whisper
+transcription = transcribe_audio(audio_path)
+
+print("Transcription:", transcription)
+
+# Send transcription to Gemini
 response = client.models.generate_content(
     model="gemini-3.5-flash-lite",
-    contents="Hello Gemini! Introduce yourself."
+    contents=f"""
+    You are a voice assistant.
+
+    Understand the following speech and identify the user's intent.
+    Extract important details such as dates, times, names and actions.
+
+    Speech: {transcription}
+    """
 )
 
-print("Step 6: Response received")
+print("\nGemini response:")
 print(response.text)
