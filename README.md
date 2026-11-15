@@ -197,4 +197,4 @@ No license file is currently included in this repository. Contact the project ma
 
 ## Contributors
 
-Built by Four Loop for a hackathon project.
+Built by **Team Four-Loop** for a hackathon project.
