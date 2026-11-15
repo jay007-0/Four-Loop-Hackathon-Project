@@ -1,3 +1,4 @@
+
 """
 Turns raw audio measurements and the transcript into plain-language
 observations and picks one thing to focus on. All thresholds are soft
@@ -7,7 +8,7 @@ guidelines, not rules. This is a practice tool, not a medical or clinical one.
 import re
 
 GOALS = {
-    "Let the website choose": None,
+    "Let the app choose": None,
     "Pace (speaking speed)": "pace",
     "Pauses": "pauses",
     "Expression (vocal variety)": "expression",
@@ -27,6 +28,35 @@ EXERCISES = {
     "volume": "Finish each sentence as strongly as you started it, especially the last word.",
     "wording": "Try opening with your main point as one clear, direct sentence, then add the context around it.",
 }
+
+# Pace is judged on speaking speed (pauses excluded), so deliberate pauses
+# don't make a speaker look slow.
+FAST_WPM = 185
+SLOW_WPM = 110
+
+
+def exercise_for(focus, m=None):
+    """An exercise that matches the direction of the problem (e.g. slow vs fast)."""
+    if m is None:
+        return EXERCISES[focus]
+
+    if focus == "pace":
+        speed = m["speaking_wpm"]
+        if speed > FAST_WPM:
+            return "Take a calm breath at the end of each sentence before starting the next one."
+        if speed < SLOW_WPM:
+            return "Pick one sentence in each part of your talk and say it a little quicker, letting the words connect the way they do in relaxed conversation."
+        return "Slow down slightly on your most important sentence, then move a little faster through the supporting detail."
+
+    if focus == "pauses":
+        if m["pause_count"] == 0:
+            return "Add a short pause, about half a second, after each main idea."
+        if m["avg_pause_s"] > 1.2:
+            return "Shorten your pauses to about a second: take your breath quickly, then start the next thought right after it."
+        return "Place one deliberate pause right before your most important point."
+
+    return EXERCISES[focus]
+
 
 # Phrases that can make a point sound less certain. A rough guide only:
 # "just" or "maybe" are often perfectly fine in context.
@@ -88,15 +118,15 @@ def observations(m):
     """
     out = []
 
-    # --- Pace ---
-    wpm = m["wpm"]
-    if wpm > 170:
+    # --- Pace (judged on speaking speed, pauses excluded) ---
+    speed = m["speaking_wpm"]
+    if speed > FAST_WPM:
         ok, msg = False, "On the faster side. A slightly slower pace gives listeners time to absorb each point."
-    elif wpm < 100:
-        ok, msg = False, "On the slower side. That can feel deliberate, but a bit more flow may keep listeners with you."
+    elif speed < SLOW_WPM:
+        ok, msg = False, "On the slower side while speaking. That can feel deliberate, but a bit more flow may keep listeners with you."
     else:
         ok, msg = True, "In a comfortable range for most listeners."
-    out.append(("pace", "Pace", f"{wpm} words/min", ok, msg))
+    out.append(("pace", "Pace", f"{speed} words/min while speaking", ok, msg))
 
     # --- Pauses ---
     if m["pause_count"] == 0 and m["duration_s"] > 15:

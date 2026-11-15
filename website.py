@@ -1,4 +1,3 @@
-
 import os
 import tempfile
 
@@ -74,7 +73,7 @@ with st.sidebar:
     goal_label = st.selectbox(
         "What would you like to work on?",
         list(GOALS.keys()),
-        help="You decide what to practice. Pick 'Let the website choose' if you're not sure.",
+        help="You decide what to practice. Pick 'Let the app choose' if you're not sure.",
     )
     chosen_key = GOALS[goal_label]
 
@@ -157,6 +156,7 @@ if st.button("Analyze my speech", type="primary"):
                     focus,
                     user_chose_focus=chosen_key is not None,
                     audience=audience,
+                    metrics=metrics,
                 )
 
             st.session_state.history.append(metrics)
@@ -204,7 +204,7 @@ if result:
         st.markdown("**⏱️ Pace and timing**")
         show_stats([
             ("Pace", m["wpm"], "wpm", " wpm", "Words per minute overall. Most listeners find 120-160 comfortable."),
-            ("Pace while speaking", m["speaking_wpm"], "speaking_wpm", " wpm", "Speed during the moments you were actually talking, pauses excluded."),
+            ("Pace while speaking", m["speaking_wpm"], "speaking_wpm", " wpm", "Speed while you were actually talking, pauses excluded. The feedback judges your pace on this one."),
             ("Length", m["duration_s"], "duration_s", " s", "Total recording length."),
             ("Words", m["words"], "words", "", "Words in the transcript."),
         ], previous)
