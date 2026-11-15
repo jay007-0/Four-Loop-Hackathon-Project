@@ -61,7 +61,7 @@ if "history" not in st.session_state:
 
 # ---------- Sidebar ----------
 with st.sidebar:
-    st.header("🎯 Your practice")
+    st.header("Your practice")
 
     audience_label = st.selectbox(
         "I'm practicing as someone who...",
